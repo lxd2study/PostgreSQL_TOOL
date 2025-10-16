@@ -1,0 +1,103 @@
+{
+  "app": {
+    "welcome": "欢迎使用 PostgreSQL 管理系统",
+    "connecting": "正在连接数据库...",
+    "connected": "连接成功！",
+    "goodbye": "再见！",
+    "error": "错误：{message}",
+    "checkSettings": "请检查 .env 文件中的数据库连接设置",
+    "shuttingDown": "正在优雅关闭..."
+  },
+  "menu": {
+    "main": {
+      "question": "您想执行什么操作？",
+      "database": "数据库操作",
+      "table": "数据表操作",
+      "query": "执行查询",
+      "export": "导出数据",
+      "exit": "退出"
+    },
+    "database": {
+      "title": "数据库操作：",
+      "list": "列出数据库",
+      "create": "创建数据库",
+      "drop": "删除数据库",
+      "switch": "切换数据库",
+      "back": "返回主菜单"
+    },
+    "table": {
+      "title": "数据表操作：",
+      "list": "列出数据表",
+      "describe": "查看表结构",
+      "view": "查看表数据",
+      "create": "创建数据表",
+      "drop": "删除数据表",
+      "back": "返回主菜单"
+    }
+  },
+  "database": {
+    "available": "可用数据库：",
+    "nameHeader": "数据库名称",
+    "enterName": "请输入数据库名称：",
+    "nameEmpty": "数据库名称不能为空",
+    "created": "数据库 \"{name}\" 创建成功！",
+    "noDatabases": "没有可用的数据库",
+    "selectToDrop": "选择要删除的数据库：",
+    "confirmDrop": "您确定吗？此操作无法撤销！",
+    "dropped": "数据库 \"{name}\" 已删除！",
+    "cancelled": "操作已取消",
+    "selectToSwitch": "选择要切换的数据库：",
+    "switched": "已切换到数据库 \"{name}\""
+  },
+  "table": {
+    "noTables": "当前数据库中没有找到数据表",
+    "listTitle": "当前数据库中的数据表：",
+    "nameHeader": "表名",
+    "rowCountHeader": "行数",
+    "selectToDescribe": "选择要查看结构的数据表：",
+    "describeTitle": "数据表：{name}",
+    "columnHeader": "列名",
+    "typeHeader": "类型",
+    "maxLengthHeader": "最大长度",
+    "nullableHeader": "可空",
+    "defaultHeader": "默认值",
+    "selectToView": "选择要查看的数据表：",
+    "rowsPrompt": "要显示的行数（默认：10）：",
+    "invalidNumber": "请输入有效的数字",
+    "empty": "数据表为空",
+    "viewTitle": "{name} 的数据（显示 {count} 行）：",
+    "enterName": "请输入表名：",
+    "nameEmpty": "表名不能为空",
+    "enterSchema": "输入 CREATE TABLE SQL 语句（不包括 CREATE TABLE 部分）：",
+    "schemaExample": "id SERIAL PRIMARY KEY, name VARCHAR(100), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+    "created": "数据表 \"{name}\" 创建成功！",
+    "selectToDrop": "选择要删除的数据表：",
+    "confirmDrop": "您确定吗？此操作无法撤销！",
+    "dropped": "数据表 \"{name}\" 已删除！",
+    "cancelled": "操作已取消"
+  },
+  "query": {
+    "enterQuery": "请输入 SQL 查询：",
+    "queryEmpty": "查询不能为空",
+    "rowsReturned": "返回 {count} 行，耗时 {duration}ms",
+    "executed": "查询执行成功！（影响 {count} 行，耗时 {duration}ms）"
+  },
+  "export": {
+    "noTables": "当前数据库中没有找到数据表",
+    "selectTable": "选择要导出的数据表：",
+    "selectFormat": "选择导出格式：",
+    "formatCSV": "CSV",
+    "formatSQL": "SQL",
+    "tableEmpty": "数据表为空，无法导出",
+    "success": "数据已成功导出到：{filepath}",
+    "totalRows": "总行数：{count}"
+  },
+  "utils": {
+    "noData": "未找到数据。"
+  },
+  "db": {
+    "connectionFailed": "连接失败：{message}",
+    "notConnected": "数据库未连接",
+    "queryFailed": "查询失败：{message}"
+  }
+}

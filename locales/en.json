@@ -1,0 +1,103 @@
+{
+  "app": {
+    "welcome": "Welcome to PostgreSQL Admin System",
+    "connecting": "Connecting to database...",
+    "connected": "Connected successfully!",
+    "goodbye": "Goodbye!",
+    "error": "Error: {message}",
+    "checkSettings": "Please check your database connection settings in .env file",
+    "shuttingDown": "Shutting down gracefully..."
+  },
+  "menu": {
+    "main": {
+      "question": "What would you like to do?",
+      "database": "Database Operations",
+      "table": "Table Operations",
+      "query": "Execute Query",
+      "export": "Export Data",
+      "exit": "Exit"
+    },
+    "database": {
+      "title": "Database Operations:",
+      "list": "List Databases",
+      "create": "Create Database",
+      "drop": "Drop Database",
+      "switch": "Switch Database",
+      "back": "Back to Main Menu"
+    },
+    "table": {
+      "title": "Table Operations:",
+      "list": "List Tables",
+      "describe": "Describe Table",
+      "view": "View Table Data",
+      "create": "Create Table",
+      "drop": "Drop Table",
+      "back": "Back to Main Menu"
+    }
+  },
+  "database": {
+    "available": "Available Databases:",
+    "nameHeader": "Database Name",
+    "enterName": "Enter database name:",
+    "nameEmpty": "Database name cannot be empty",
+    "created": "Database \"{name}\" created successfully!",
+    "noDatabases": "No databases available",
+    "selectToDrop": "Select database to drop:",
+    "confirmDrop": "Are you sure? This action cannot be undone!",
+    "dropped": "Database \"{name}\" dropped successfully!",
+    "cancelled": "Operation cancelled",
+    "selectToSwitch": "Select database to switch to:",
+    "switched": "Switched to database \"{name}\""
+  },
+  "table": {
+    "noTables": "No tables found in current database",
+    "listTitle": "Tables in current database:",
+    "nameHeader": "Table Name",
+    "rowCountHeader": "Row Count",
+    "selectToDescribe": "Select table to describe:",
+    "describeTitle": "Table: {name}",
+    "columnHeader": "Column",
+    "typeHeader": "Type",
+    "maxLengthHeader": "Max Length",
+    "nullableHeader": "Nullable",
+    "defaultHeader": "Default",
+    "selectToView": "Select table to view:",
+    "rowsPrompt": "Number of rows to display (default: 10):",
+    "invalidNumber": "Please enter a valid number",
+    "empty": "Table is empty",
+    "viewTitle": "Data from {name} (showing {count} rows):",
+    "enterName": "Enter table name:",
+    "nameEmpty": "Table name cannot be empty",
+    "enterSchema": "Enter CREATE TABLE SQL (without CREATE TABLE part):",
+    "schemaExample": "id SERIAL PRIMARY KEY, name VARCHAR(100), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+    "created": "Table \"{name}\" created successfully!",
+    "selectToDrop": "Select table to drop:",
+    "confirmDrop": "Are you sure? This action cannot be undone!",
+    "dropped": "Table \"{name}\" dropped successfully!",
+    "cancelled": "Operation cancelled"
+  },
+  "query": {
+    "enterQuery": "Enter SQL query:",
+    "queryEmpty": "Query cannot be empty",
+    "rowsReturned": "{count} rows returned in {duration}ms",
+    "executed": "Query executed successfully! ({count} rows affected, {duration}ms)"
+  },
+  "export": {
+    "noTables": "No tables found in current database",
+    "selectTable": "Select table to export:",
+    "selectFormat": "Select export format:",
+    "formatCSV": "CSV",
+    "formatSQL": "SQL",
+    "tableEmpty": "Table is empty, nothing to export",
+    "success": "Data exported successfully to: {filepath}",
+    "totalRows": "Total rows: {count}"
+  },
+  "utils": {
+    "noData": "No data found."
+  },
+  "db": {
+    "connectionFailed": "Connection failed: {message}",
+    "notConnected": "Database not connected",
+    "queryFailed": "Query failed: {message}"
+  }
+}
