@@ -99,5 +99,15 @@
     "connectionFailed": "连接失败：{message}",
     "notConnected": "数据库未连接",
     "queryFailed": "查询失败：{message}"
+  },
+  "security": {
+    "invalidIdentifier": "无效的标识符名称",
+    "invalidLimit": "无效的行数限制，请输入1-10000之间的数字",
+    "invalidSchema": "无效的表结构定义",
+    "dangerousKeyword": "检测到危险的关键词: {keyword}",
+    "invalidSchemaFormat": "表结构格式不正确",
+    "invalidQuery": "无效的查询语句",
+    "readOnlyAllowed": "只允许执行SELECT查询",
+    "invalidFilename": "无效的文件名"
   }
 }
