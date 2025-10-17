@@ -2,6 +2,7 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import { displayTable, displayMessage, exportToCSV, exportToSQL } from './utils.js';
 import { t } from './i18n.js';
+import { SecurityUtils } from './security.js';
 
 export async function showMainMenu(db) {
   console.log('\n' + chalk.bold.blue('='.repeat(50)));
@@ -121,7 +122,12 @@ async function createDatabase(db) {
       type: 'input',
       name: 'name',
       message: t('database.enterName'),
-      validate: input => input.trim() !== '' || t('database.nameEmpty')
+      validate: input => {
+        const trimmed = input.trim();
+        if (!trimmed) return t('database.nameEmpty');
+        if (!SecurityUtils.isValidDatabaseName(trimmed)) return t('security.invalidIdentifier');
+        return true;
+      }
     }
   ]);
 
@@ -249,11 +255,23 @@ async function viewTableData(db) {
       name: 'limit',
       message: t('table.rowsPrompt'),
       default: '10',
-      validate: input => !isNaN(input) && parseInt(input) > 0 || t('table.invalidNumber')
+      validate: input => {
+        try {
+          SecurityUtils.validateLimit(input);
+          return true;
+        } catch (error) {
+          return error.message;
+        }
+      }
     }
   ]);
 
-  const result = await db.query(`SELECT * FROM "${answer.table}" LIMIT ${answer.limit}`);
+  const limit = SecurityUtils.validateLimit(answer.limit);
+  const result = await db.safeIdentifierQuery(
+    `SELECT * FROM {identifier} LIMIT $1`,
+    answer.table,
+    [limit]
+  );
 
   if (result.rows.length === 0) {
     displayMessage(t('table.empty'), 'warning');
@@ -261,7 +279,38 @@ async function viewTableData(db) {
   }
 
   console.log('\n' + chalk.bold(t('table.viewTitle', { name: answer.table, count: result.rows.length })));
-  displayTable(Object.keys(result.rows[0]), result.rows);
+  
+  // 如果行数超过20行，询问是否分页显示
+  if (result.rows.length > 20) {
+    const pageSize = 20;
+    const totalPages = Math.ceil(result.rows.length / pageSize);
+    
+    for (let page = 0; page < totalPages; page++) {
+      const start = page * pageSize;
+      const end = Math.min(start + pageSize, result.rows.length);
+      const pageData = result.rows.slice(start, end);
+      
+      console.log(chalk.gray(`\n--- 第 ${page + 1} 页 (${start + 1}-${end} 行) ---`));
+      displayTable(Object.keys(result.rows[0]), pageData);
+      
+      if (page < totalPages - 1) {
+        const continueAnswer = await inquirer.prompt([
+          {
+            type: 'confirm',
+            name: 'continue',
+            message: `继续显示下一页吗？ (${page + 1}/${totalPages})`,
+            default: true
+          }
+        ]);
+        
+        if (!continueAnswer.continue) {
+          break;
+        }
+      }
+    }
+  } else {
+    displayTable(Object.keys(result.rows[0]), result.rows);
+  }
 }
 
 async function createTable(db) {
@@ -270,17 +319,33 @@ async function createTable(db) {
       type: 'input',
       name: 'name',
       message: t('table.enterName'),
-      validate: input => input.trim() !== '' || t('table.nameEmpty')
+      validate: input => {
+        const trimmed = input.trim();
+        if (!trimmed) return t('table.nameEmpty');
+        if (!SecurityUtils.isValidTableName(trimmed)) return t('security.invalidIdentifier');
+        return true;
+      }
     },
     {
       type: 'input',
       name: 'sql',
       message: t('table.enterSchema'),
-      default: t('table.schemaExample')
+      default: t('table.schemaExample'),
+      validate: input => {
+        const trimmed = input.trim();
+        if (!trimmed) return t('table.nameEmpty');
+        try {
+          SecurityUtils.validateTableSchema(trimmed);
+          return true;
+        } catch (error) {
+          return error.message;
+        }
+      }
     }
   ]);
 
   await db.query(`CREATE TABLE "${answer.name}" (${answer.sql})`);
+  db.clearCache(); // 清除缓存
   displayMessage(t('table.created', { name: answer.name }), 'success');
 }
 
@@ -320,7 +385,16 @@ export async function executeCustomQuery(db) {
       type: 'input',
       name: 'sql',
       message: t('query.enterQuery'),
-      validate: input => input.trim() !== '' || t('query.queryEmpty')
+      validate: input => {
+        const trimmed = input.trim();
+        if (!trimmed) return t('query.queryEmpty');
+        try {
+          SecurityUtils.validateCustomQuery(trimmed);
+          return true;
+        } catch (error) {
+          return error.message;
+        }
+      }
     }
   ]);
 
@@ -329,7 +403,37 @@ export async function executeCustomQuery(db) {
   const duration = Date.now() - startTime;
 
   if (result.command === 'SELECT' && result.rows.length > 0) {
-    displayTable(Object.keys(result.rows[0]), result.rows);
+    // 如果行数超过20行，询问是否分页显示
+    if (result.rows.length > 20) {
+      const pageSize = 20;
+      const totalPages = Math.ceil(result.rows.length / pageSize);
+      
+      for (let page = 0; page < totalPages; page++) {
+        const start = page * pageSize;
+        const end = Math.min(start + pageSize, result.rows.length);
+        const pageData = result.rows.slice(start, end);
+        
+        console.log(chalk.gray(`\n--- 第 ${page + 1} 页 (${start + 1}-${end} 行) ---`));
+        displayTable(Object.keys(result.rows[0]), pageData);
+        
+        if (page < totalPages - 1) {
+          const continueAnswer = await inquirer.prompt([
+            {
+              type: 'confirm',
+              name: 'continue',
+              message: `继续显示下一页吗？ (${page + 1}/${totalPages})`,
+              default: true
+            }
+          ]);
+          
+          if (!continueAnswer.continue) {
+            break;
+          }
+        }
+      }
+    } else {
+      displayTable(Object.keys(result.rows[0]), result.rows);
+    }
     console.log(chalk.gray(`\n${t('query.rowsReturned', { count: result.rowCount, duration })}`));
   } else {
     displayMessage(t('query.executed', { count: result.rowCount || 0, duration }), 'success');
@@ -358,7 +462,12 @@ export async function exportData(db) {
     }
   ]);
 
-  const result = await db.query(`SELECT * FROM "${answer.table}"`);
+  // 显示导出进度
+  displayMessage('正在查询表数据...', 'info');
+  const result = await db.safeIdentifierQuery(
+    'SELECT * FROM {identifier}',
+    answer.table
+  );
 
   if (result.rows.length === 0) {
     displayMessage(t('export.tableEmpty'), 'warning');
@@ -366,9 +475,12 @@ export async function exportData(db) {
   }
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+  const safeTableName = SecurityUtils.sanitizeFilename(answer.table);
   const format = answer.format === t('export.formatCSV') ? 'CSV' : 'SQL';
-  const filename = `${answer.table}_${timestamp}.${format.toLowerCase()}`;
+  const filename = `${safeTableName}_${timestamp}.${format.toLowerCase()}`;
 
+  displayMessage(`正在导出 ${format} 格式数据...`, 'info');
+  
   let filepath;
   if (format === 'CSV') {
     filepath = exportToCSV(result.rows, filename);

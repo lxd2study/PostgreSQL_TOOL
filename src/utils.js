@@ -47,20 +47,33 @@ export function exportToCSV(data, filename) {
   }
 
   const headers = Object.keys(data[0]);
+  
+  // 添加进度指示
+  const progress = new ProgressBar(data.length, 30);
+  
   const csv = [
     headers.join(','),
-    ...data.map(row =>
-      headers.map(header => {
+    ...data.map((row, index) => {
+      const rowCsv = headers.map(header => {
         const value = row[header];
         if (value === null) return '';
         if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
           return `"${value.replace(/"/g, '""')}"`;
         }
         return value;
-      }).join(',')
-    )
+      }).join(',');
+      
+      // 每处理100行更新一次进度
+      if (index % 100 === 0) {
+        progress.update(index);
+      }
+      
+      return rowCsv;
+    })
   ].join('\n');
 
+  progress.update(data.length); // 完成进度
+  
   const filepath = path.join(exportDir, filename);
   fs.writeFileSync(filepath, csv);
   return filepath;
@@ -99,4 +112,33 @@ export function formatBytes(bytes) {
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+/**
+ * 进度指示器
+ */
+export class ProgressBar {
+  constructor(total, width = 40) {
+    this.total = total;
+    this.current = 0;
+    this.width = width;
+  }
+
+  update(current) {
+    this.current = current;
+    const percentage = Math.min(100, (current / this.total) * 100);
+    const filled = Math.round((this.width * percentage) / 100);
+    const empty = this.width - filled;
+    
+    const bar = '█'.repeat(filled) + '░'.repeat(empty);
+    process.stdout.write(`\r[${bar}] ${percentage.toFixed(1)}% (${current}/${this.total})`);
+    
+    if (current >= this.total) {
+      process.stdout.write('\n');
+    }
+  }
+
+  increment() {
+    this.update(this.current + 1);
+  }
 }

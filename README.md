@@ -1,5 +1,7 @@
 # PostgreSQL Admin System
 
+![演示.png](演示.png)
+
 A powerful command-line interface for managing PostgreSQL databases with an intuitive menu system.
 
 一个功能强大的 PostgreSQL 数据库管理命令行工具，具有直观的菜单系统。
@@ -40,17 +42,20 @@ A powerful command-line interface for managing PostgreSQL databases with an intu
 1. Clone or download this project
 
 2. Install dependencies:
+
 ```bash
 cd pg_admin
 npm install
 ```
 
 3. Configure database connection:
+
 ```bash
 cp .env.example .env
 ```
 
 4. Edit `.env` file with your database credentials:
+
 ```
 DB_HOST=localhost
 DB_PORT=5432
@@ -63,11 +68,13 @@ LANGUAGE=en  # Available: en (English), zh_CN (Simplified Chinese)
 ### Usage
 
 Start the application:
+
 ```bash
 npm start
 ```
 
 Or for development with auto-reload:
+
 ```bash
 npm run dev
 ```
@@ -82,12 +89,14 @@ LANGUAGE=en     # For English
 ```
 
 Supported languages:
+
 - `en` - English (Default)
 - `zh_CN` - Simplified Chinese (简体中文)
 
 ### Menu Structure
 
 #### Main Menu
+
 - Database Operations - Manage databases
 - Table Operations - Manage tables
 - Execute Query - Run custom SQL
@@ -95,12 +104,14 @@ Supported languages:
 - Exit - Close application
 
 #### Database Operations
+
 - List Databases - Show all available databases
 - Create Database - Create a new database
 - Drop Database - Delete a database
 - Switch Database - Change to another database
 
 #### Table Operations
+
 - List Tables - Show all tables with row counts
 - Describe Table - View table structure
 - View Table Data - Browse table records
@@ -108,9 +119,11 @@ Supported languages:
 - Drop Table - Delete a table
 
 #### Query Execution
+
 Execute any SQL query and view results in a formatted table.
 
 #### Export Data
+
 Export table data to CSV or SQL format. Files are saved in the `exports/` directory.
 
 ### Project Structure
@@ -149,17 +162,20 @@ pg_admin/
 ### Examples
 
 #### Creating a Table
+
 1. Select "Table Operations" from main menu
 2. Select "Create Table"
 3. Enter table name: `users`
 4. Enter columns: `id SERIAL PRIMARY KEY, name VARCHAR(100), email VARCHAR(255) UNIQUE`
 
 #### Executing a Query
+
 1. Select "Execute Query" from main menu
 2. Enter SQL: `SELECT * FROM users WHERE name LIKE '%John%'`
 3. View formatted results
 
 #### Exporting Data
+
 1. Select "Export Data" from main menu
 2. Choose table to export
 3. Select format (CSV or SQL)
@@ -168,6 +184,7 @@ pg_admin/
 ### Error Handling
 
 The application includes comprehensive error handling:
+
 - Connection failures are caught and reported
 - Invalid queries show error messages
 - Confirmation prompts for destructive operations
@@ -214,17 +231,20 @@ Feel free to submit issues and enhancement requests!
 1. 克隆或下载此项目
 
 2. 安装依赖：
+
 ```bash
 cd pg_admin
 npm install
 ```
 
 3. 配置数据库连接：
+
 ```bash
 cp .env.example .env
 ```
 
 4. 编辑 `.env` 文件，填入你的数据库凭据：
+
 ```
 DB_HOST=localhost
 DB_PORT=5432
@@ -237,11 +257,13 @@ LANGUAGE=zh_CN  # 可选：en (英文), zh_CN (简体中文)
 ### 使用方法
 
 启动应用程序：
+
 ```bash
 npm start
 ```
 
 或者使用自动重载的开发模式：
+
 ```bash
 npm run dev
 ```
@@ -256,12 +278,14 @@ LANGUAGE=en     # 英文
 ```
 
 支持的语言：
+
 - `en` - 英文（默认）
 - `zh_CN` - 简体中文
 
 ### 菜单结构
 
 #### 主菜单
+
 - 数据库操作 - 管理数据库
 - 数据表操作 - 管理数据表
 - 执行查询 - 运行自定义 SQL
@@ -269,12 +293,14 @@ LANGUAGE=en     # 英文
 - 退出 - 关闭应用程序
 
 #### 数据库操作
+
 - 列出数据库 - 显示所有可用数据库
 - 创建数据库 - 创建一个新数据库
 - 删除数据库 - 删除数据库
 - 切换数据库 - 切换到另一个数据库
 
 #### 数据表操作
+
 - 列出数据表 - 显示所有数据表及其行数
 - 查看表结构 - 查看表结构
 - 查看表数据 - 浏览表记录
@@ -282,9 +308,11 @@ LANGUAGE=en     # 英文
 - 删除数据表 - 删除数据表
 
 #### 查询执行
+
 执行任何 SQL 查询并在格式化的表格中查看结果。
 
 #### 数据导出
+
 将表数据导出为 CSV 或 SQL 格式。文件保存在 `exports/` 目录中。
 
 ### 项目结构
@@ -323,17 +351,20 @@ pg_admin/
 ### 使用示例
 
 #### 创建表
+
 1. 从主菜单选择"数据表操作"
 2. 选择"创建数据表"
 3. 输入表名：`users`
 4. 输入列定义：`id SERIAL PRIMARY KEY, name VARCHAR(100), email VARCHAR(255) UNIQUE`
 
 #### 执行查询
+
 1. 从主菜单选择"执行查询"
 2. 输入 SQL：`SELECT * FROM users WHERE name LIKE '%John%'`
 3. 查看格式化的结果
 
 #### 导出数据
+
 1. 从主菜单选择"导出数据"
 2. 选择要导出的表
 3. 选择格式（CSV 或 SQL）
@@ -342,6 +373,7 @@ pg_admin/
 ### 错误处理
 
 该应用程序包含全面的错误处理：
+
 - 捕获并报告连接失败
 - 显示无效查询的错误消息
 - 为破坏性操作提供确认提示
