@@ -99,5 +99,15 @@
     "connectionFailed": "Connection failed: {message}",
     "notConnected": "Database not connected",
     "queryFailed": "Query failed: {message}"
+  },
+  "security": {
+    "invalidIdentifier": "Invalid identifier name",
+    "invalidLimit": "Invalid row limit, please enter a number between 1-10000",
+    "invalidSchema": "Invalid table schema definition",
+    "dangerousKeyword": "Dangerous keyword detected: {keyword}",
+    "invalidSchemaFormat": "Invalid table schema format",
+    "invalidQuery": "Invalid query statement",
+    "readOnlyAllowed": "Only SELECT queries are allowed",
+    "invalidFilename": "Invalid filename"
   }
 }
