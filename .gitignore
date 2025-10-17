@@ -4,4 +4,4 @@ exports/*.sql
 exports/*.csv
 *.log
 .claude/
-./IFLOW.md
+IFLOW.md
