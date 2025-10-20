@@ -4,7 +4,7 @@
 
 A powerful command-line interface for managing PostgreSQL databases with an intuitive menu system.
 
-一个功能强大的 PostgreSQL 数据库管理命令行工具，具有直观的菜单系统。
+一个轻量便捷的 PostgreSQL 数据库管理命令行工具，具有直观的菜单系统。
 
 [English](#english) | [中文](#中文)
 
