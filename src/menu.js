@@ -1,9 +1,19 @@
+/**
+ * 菜单模块
+ * 提供命令行交互界面的菜单系统和各种数据库操作功能
+ */
+
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import { displayTable, displayMessage, exportToCSV, exportToSQL } from './utils.js';
 import { t } from './i18n.js';
 import { SecurityUtils } from './security.js';
 
+/**
+ * 显示主菜单
+ * @param {DatabaseConnection} db - 数据库连接实例
+ * @returns {Promise<string>} 用户选择的操作
+ */
 export async function showMainMenu(db) {
   console.log('\n' + chalk.bold.blue('='.repeat(50)));
   console.log(chalk.bold.blue(`PostgreSQL Admin - Current DB: ${db.getCurrentDatabase()}`));
@@ -28,6 +38,10 @@ export async function showMainMenu(db) {
   return answer.action;
 }
 
+/**
+ * 显示数据库操作菜单
+ * @param {DatabaseConnection} db - 数据库连接实例
+ */
 export async function showDatabaseMenu(db) {
   const answer = await inquirer.prompt([
     {
@@ -67,6 +81,10 @@ export async function showDatabaseMenu(db) {
   }
 }
 
+/**
+ * 显示表操作菜单
+ * @param {DatabaseConnection} db - 数据库连接实例
+ */
 export async function showTableMenu(db) {
   const answer = await inquirer.prompt([
     {
@@ -110,12 +128,20 @@ export async function showTableMenu(db) {
   }
 }
 
+/**
+ * 列出所有数据库
+ * @param {DatabaseConnection} db - 数据库连接实例
+ */
 async function listDatabases(db) {
   const databases = await db.listDatabases();
   console.log('\n' + chalk.bold(t('database.available')));
   displayTable([t('database.nameHeader')], databases);
 }
 
+/**
+ * 创建新数据库
+ * @param {DatabaseConnection} db - 数据库连接实例
+ */
 async function createDatabase(db) {
   const answer = await inquirer.prompt([
     {
@@ -125,6 +151,7 @@ async function createDatabase(db) {
       validate: input => {
         const trimmed = input.trim();
         if (!trimmed) return t('database.nameEmpty');
+        // 验证数据库名称是否合法
         if (!SecurityUtils.isValidDatabaseName(trimmed)) return t('security.invalidIdentifier');
         return true;
       }
@@ -135,6 +162,11 @@ async function createDatabase(db) {
   displayMessage(t('database.created', { name: answer.name }), 'success');
 }
 
+/**
+ * 删除数据库
+ * 需要用户确认操作
+ * @param {DatabaseConnection} db - 数据库连接实例
+ */
 async function dropDatabase(db) {
   const databases = await db.listDatabases();
   if (databases.length === 0) {
@@ -165,6 +197,10 @@ async function dropDatabase(db) {
   }
 }
 
+/**
+ * 切换到其他数据库
+ * @param {DatabaseConnection} db - 数据库连接实例
+ */
 async function switchDatabase(db) {
   const databases = await db.listDatabases();
   if (databases.length === 0) {
@@ -185,6 +221,10 @@ async function switchDatabase(db) {
   displayMessage(t('database.switched', { name: answer.name }), 'success');
 }
 
+/**
+ * 列出当前数据库中的所有表及其行数
+ * @param {DatabaseConnection} db - 数据库连接实例
+ */
 async function listTables(db) {
   const tables = await db.listTables();
   if (tables.length === 0) {
@@ -194,6 +234,7 @@ async function listTables(db) {
 
   console.log('\n' + chalk.bold(t('table.listTitle')));
 
+  // 获取每个表的行数
   const tableData = [];
   for (const table of tables) {
     const count = await db.getTableRowCount(table.table_name);
@@ -206,6 +247,10 @@ async function listTables(db) {
   displayTable([t('table.nameHeader'), t('table.rowCountHeader')], tableData);
 }
 
+/**
+ * 查看表的详细结构（列信息）
+ * @param {DatabaseConnection} db - 数据库连接实例
+ */
 async function describeTable(db) {
   const tables = await db.listTables();
   if (tables.length === 0) {
@@ -236,6 +281,11 @@ async function describeTable(db) {
   );
 }
 
+/**
+ * 查看表数据
+ * 支持分页显示（超过 20 行时）
+ * @param {DatabaseConnection} db - 数据库连接实例
+ */
 async function viewTableData(db) {
   const tables = await db.listTables();
   if (tables.length === 0) {
@@ -279,20 +329,21 @@ async function viewTableData(db) {
   }
 
   console.log('\n' + chalk.bold(t('table.viewTitle', { name: answer.table, count: result.rows.length })));
-  
-  // 如果行数超过20行，询问是否分页显示
+
+  // 如果行数超过 20 行，分页显示
   if (result.rows.length > 20) {
     const pageSize = 20;
     const totalPages = Math.ceil(result.rows.length / pageSize);
-    
+
     for (let page = 0; page < totalPages; page++) {
       const start = page * pageSize;
       const end = Math.min(start + pageSize, result.rows.length);
       const pageData = result.rows.slice(start, end);
-      
+
       console.log(chalk.gray(`\n--- 第 ${page + 1} 页 (${start + 1}-${end} 行) ---`));
       displayTable(Object.keys(result.rows[0]), pageData);
-      
+
+      // 询问是否继续显示下一页
       if (page < totalPages - 1) {
         const continueAnswer = await inquirer.prompt([
           {
@@ -302,7 +353,7 @@ async function viewTableData(db) {
             default: true
           }
         ]);
-        
+
         if (!continueAnswer.continue) {
           break;
         }
@@ -313,6 +364,10 @@ async function viewTableData(db) {
   }
 }
 
+/**
+ * 创建新表
+ * @param {DatabaseConnection} db - 数据库连接实例
+ */
 async function createTable(db) {
   const answer = await inquirer.prompt([
     {
@@ -349,6 +404,11 @@ async function createTable(db) {
   displayMessage(t('table.created', { name: answer.name }), 'success');
 }
 
+/**
+ * 删除表
+ * 需要用户确认操作
+ * @param {DatabaseConnection} db - 数据库连接实例
+ */
 async function dropTable(db) {
   const tables = await db.listTables();
   if (tables.length === 0) {
@@ -379,6 +439,12 @@ async function dropTable(db) {
   }
 }
 
+/**
+ * 执行自定义 SQL 查询
+ * 仅允许只读查询（SELECT 等）
+ * 支持分页显示结果和性能计时
+ * @param {DatabaseConnection} db - 数据库连接实例
+ */
 export async function executeCustomQuery(db) {
   const answer = await inquirer.prompt([
     {
@@ -389,6 +455,7 @@ export async function executeCustomQuery(db) {
         const trimmed = input.trim();
         if (!trimmed) return t('query.queryEmpty');
         try {
+          // 验证查询安全性
           SecurityUtils.validateCustomQuery(trimmed);
           return true;
         } catch (error) {
@@ -398,24 +465,26 @@ export async function executeCustomQuery(db) {
     }
   ]);
 
+  // 记录查询执行时间
   const startTime = Date.now();
   const result = await db.query(answer.sql);
   const duration = Date.now() - startTime;
 
+  // 处理 SELECT 查询结果
   if (result.command === 'SELECT' && result.rows.length > 0) {
-    // 如果行数超过20行，询问是否分页显示
+    // 如果行数超过 20 行，分页显示
     if (result.rows.length > 20) {
       const pageSize = 20;
       const totalPages = Math.ceil(result.rows.length / pageSize);
-      
+
       for (let page = 0; page < totalPages; page++) {
         const start = page * pageSize;
         const end = Math.min(start + pageSize, result.rows.length);
         const pageData = result.rows.slice(start, end);
-        
+
         console.log(chalk.gray(`\n--- 第 ${page + 1} 页 (${start + 1}-${end} 行) ---`));
         displayTable(Object.keys(result.rows[0]), pageData);
-        
+
         if (page < totalPages - 1) {
           const continueAnswer = await inquirer.prompt([
             {
@@ -425,7 +494,7 @@ export async function executeCustomQuery(db) {
               default: true
             }
           ]);
-          
+
           if (!continueAnswer.continue) {
             break;
           }
@@ -436,10 +505,16 @@ export async function executeCustomQuery(db) {
     }
     console.log(chalk.gray(`\n${t('query.rowsReturned', { count: result.rowCount, duration })}`));
   } else {
+    // 非 SELECT 查询或无结果
     displayMessage(t('query.executed', { count: result.rowCount || 0, duration }), 'success');
   }
 }
 
+/**
+ * 导出表数据
+ * 支持 CSV 和 SQL 两种格式
+ * @param {DatabaseConnection} db - 数据库连接实例
+ */
 export async function exportData(db) {
   const tables = await db.listTables();
   if (tables.length === 0) {
@@ -474,13 +549,15 @@ export async function exportData(db) {
     return;
   }
 
+  // 生成文件名（包含时间戳）
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
   const safeTableName = SecurityUtils.sanitizeFilename(answer.table);
   const format = answer.format === t('export.formatCSV') ? 'CSV' : 'SQL';
   const filename = `${safeTableName}_${timestamp}.${format.toLowerCase()}`;
 
   displayMessage(`正在导出 ${format} 格式数据...`, 'info');
-  
+
+  // 根据选择的格式导出
   let filepath;
   if (format === 'CSV') {
     filepath = exportToCSV(result.rows, filename);
