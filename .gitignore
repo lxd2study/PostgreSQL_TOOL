@@ -5,3 +5,6 @@ exports/*.csv
 *.log
 .claude/
 IFLOW.md
+*.swp
+*.swo
+*~
