@@ -6,16 +6,25 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "web": "node src/server.js",
+    "web:dev": "node --watch src/server.js"
   },
-  "keywords": ["postgresql", "database", "admin", "cli"],
+  "keywords": [
+    "postgresql",
+    "database",
+    "admin",
+    "cli"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "pg": "^8.11.3",
-    "inquirer": "^9.2.12",
     "chalk": "^5.3.0",
     "cli-table3": "^0.6.3",
-    "dotenv": "^16.3.1"
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.21.2",
+    "inquirer": "^9.2.12",
+    "pg": "^8.11.3"
   }
 }

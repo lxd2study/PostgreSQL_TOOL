@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostgreSQL 管理系统</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 数据库连接配置 (登录页) -->
+        <div class="config-panel" id="configPanel">
+            <div class="config-panel-content">
+                <h2>PostgreSQL Admin</h2>
+                <form id="connectionForm">
+                    <div class="form-group">
+                        <label for="dbHost">主机地址</label>
+                        <input type="text" id="dbHost" value="localhost" placeholder="localhost" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dbPort">端口</label>
+                        <input type="number" id="dbPort" value="5432" placeholder="5432" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dbUser">用户名</label>
+                        <input type="text" id="dbUser" value="postgres" placeholder="postgres" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dbPassword">密码</label>
+                        <input type="password" id="dbPassword" placeholder="数据库密码" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dbName">数据库名</label>
+                        <input type="text" id="dbName" value="postgres" placeholder="postgres" required>
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+                        <input type="checkbox" id="rememberMe" style="width: auto;">
+                        <label for="rememberMe" style="margin: 0; font-weight: normal; text-transform: none;">记住连接信息</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                        连接数据库
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 主界面 (侧边栏 + 内容区) -->
+        <div class="sidebar" id="sidebar" style="display: none;">
+            <div class="sidebar-header">
+                <h1>PG Admin</h1>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="databases">
+                    数据库
+                </button>
+                <button class="nav-item" data-tab="tables">
+                    数据表
+                </button>
+                <button class="nav-item" data-tab="query">
+                    SQL查询
+                </button>
+                <button class="nav-item" data-tab="export">
+                    导出
+                </button>
+            </nav>
+            <div class="current-db">
+                <strong>当前数据库</strong>
+                <span id="currentDbName">-</span>
+            </div>
+        </div>
+
+        <div class="main-wrapper" id="mainContent" style="display: none;">
+            <header class="header">
+                <div class="connection-status">
+                    <span class="status-indicator" id="statusIndicator"></span>
+                    <span id="connectionStatus">未连接</span>
+                </div>
+            </header>
+
+            <main class="content">
+                <!-- 数据库管理标签页 -->
+                <div class="tab-content active" id="databases">
+                    <div class="toolbar">
+                        <h2>数据库管理</h2>
+                        <div class="toolbar-actions">
+                            <button class="btn btn-primary" onclick="showCreateDatabaseModal()">
+                                新建数据库
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadDatabases()">
+                                刷新
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="databasesTable">
+                            <thead>
+                                <tr>
+                                    <th>数据库名称</th>
+                                    <th>所有者</th>
+                                    <th>编码</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="databasesTableBody">
+                                <tr>
+                                    <td colspan="4" class="loading">加载中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 数据表管理标签页 -->
+                <div class="tab-content" id="tables">
+                    <div class="toolbar">
+                        <h2>数据表管理</h2>
+                        <div class="toolbar-actions">
+                            <button class="btn btn-primary" onclick="showCreateTableModal()">
+                                新建数据表
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadTables()">
+                                刷新
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="tablesTable">
+                            <thead>
+                                <tr>
+                                    <th>表名称</th>
+                                    <th>行数</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablesTableBody">
+                                <tr>
+                                    <td colspan="3" class="loading">请先选择数据库</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SQL查询标签页 -->
+                <div class="tab-content" id="query">
+                    <div class="toolbar">
+                        <h2>SQL查询</h2>
+                        <div class="toolbar-actions">
+                            <button class="btn btn-primary" onclick="executeQuery()">
+                                执行查询
+                            </button>
+                            <button class="btn btn-secondary" onclick="clearQuery()">
+                                清空
+                            </button>
+                        </div>
+                    </div>
+                    <div class="sql-editor-container">
+                        <div class="sql-toolbar">
+                            <button class="btn-xs" onclick="insertSql('SELECT * FROM table LIMIT 10;')">SELECT</button>
+                            <button class="btn-xs" onclick="insertSql('INSERT INTO table (col1, col2) VALUES (val1, val2);')">INSERT</button>
+                            <button class="btn-xs" onclick="insertSql('UPDATE table SET col1 = val1 WHERE id = 1;')">UPDATE</button>
+                            <button class="btn-xs" onclick="insertSql('DELETE FROM table WHERE id = 1;')">DELETE</button>
+                            <button class="btn-xs" onclick="insertSql('CREATE TABLE table (id SERIAL PRIMARY KEY);')">CREATE TABLE</button>
+                        </div>
+                        <div class="query-editor">
+                            <textarea id="sqlEditor" placeholder="在此输入 SQL 查询语句..."></textarea>
+                        </div>
+                    </div>
+                    <div class="query-results" style="margin-top: 20px;">
+                        <div id="queryResultsContainer">
+                            <p class="empty-state" style="color: #9ca3af; text-align: center; padding: 40px;">执行查询后结果将显示在这里</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据导出标签页 -->
+                <div class="tab-content" id="export">
+                    <div class="toolbar">
+                        <h2>数据导出</h2>
+                    </div>
+                    <div class="export-form">
+                        <div class="form-group">
+                            <label for="exportTable">选择要导出的表:</label>
+                            <select id="exportTable" class="form-control">
+                                <option value="">-- 请选择表 --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="exportFormat">导出格式:</label>
+                            <select id="exportFormat" class="form-control">
+                                <option value="csv">CSV</option>
+                                <option value="sql">SQL</option>
+                                <option value="json">JSON</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="exportTableData()">
+                            导出数据
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 模态框：创建数据库 -->
+    <div class="modal" id="createDatabaseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>创建新数据库</h3>
+                <button class="close-btn" onclick="closeModal('createDatabaseModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="newDbName">数据库名称:</label>
+                    <input type="text" id="newDbName" class="form-control" placeholder="输入数据库名称" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('createDatabaseModal')">取消</button>
+                <button class="btn btn-primary" onclick="createDatabase()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：创建数据表 -->
+    <div class="modal" id="createTableModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>创建新数据表</h3>
+                <button class="close-btn" onclick="closeModal('createTableModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="newTableName">表名称:</label>
+                    <input type="text" id="newTableName" class="form-control" placeholder="输入表名称" required>
+                </div>
+                <div class="form-group">
+                    <label for="tableColumns">列定义:</label>
+                    <textarea id="tableColumns" class="form-control" rows="5" placeholder="例如:&#x0a;id SERIAL PRIMARY KEY,&#x0a;name VARCHAR(100),&#x0a;email VARCHAR(255) UNIQUE,&#x0a;created_at TIMESTAMP DEFAULT NOW()" required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('createTableModal')">取消</button>
+                <button class="btn btn-primary" onclick="createTable()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：查看表数据 -->
+    <div class="modal modal-large" id="viewDataModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>表数据查看: <span id="viewDataTableName"></span></h3>
+                <button class="close-btn" onclick="closeModal('viewDataModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="viewDataContainer"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('viewDataModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：查看表结构 -->
+    <div class="modal modal-large" id="describeTableModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>表结构: <span id="describeTableName"></span></h3>
+                <button class="close-btn" onclick="closeModal('describeTableModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="describeTableContainer"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('describeTableModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
